@@ -1,4 +1,4 @@
-// frontend/src/mockApi.js
+// frontend/src/mockAPI.js
 export async function verifyCallMock() {
   // Simulate network delay
   await new Promise((res) => setTimeout(res, 500))

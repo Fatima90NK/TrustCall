@@ -1,6 +1,5 @@
 import { useState } from "react"
-//TODO: Interesting the file reference dont need to be uppercase like the file.js
-import { verifyCallMock as verifyCallVerified } from "./mockAPI"
+import { verifyCallMock as verifyCallVerified } from "./mockApi"
 import { verifyCallMock as verifyCallNotVerified } from "./mockAPInotVerified"
 
 
