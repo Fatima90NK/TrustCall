@@ -38,7 +38,9 @@ class IdentityLayer:
 
         try:
             verification = await self.number_verification_api.verify(normalized)
+            verification_available = verification is not None
             verified = bool((verification or {}).get("devicePhoneNumberVerified", False))
+            signals["number_verification_available"] = verification_available
             signals["device_phone_number_verified"] = verified
             if verified:
                 score_delta += 15
@@ -65,15 +67,18 @@ class IdentityLayer:
                 family_name=match_payload.family_name,
                 address=match_payload.address,
             )
+            kyc_match_available = kyc_match is not None
             match_score = int((kyc_match or {}).get("matchScore", 0))
+            signals["kyc_match_available"] = kyc_match_available
             signals["kyc_match_score"] = match_score
 
-            if match_score > 80:
-                score_delta += 15
-            elif match_score >= 50:
-                score_delta += 5
-            else:
-                score_delta -= 10
+            if kyc_match_available:
+                if match_score > 80:
+                    score_delta += 15
+                elif match_score >= 50:
+                    score_delta += 5
+                else:
+                    score_delta -= 10
         except Exception as exc:
             latency_ms = int((time.perf_counter() - started) * 1000)
             return LayerResult(

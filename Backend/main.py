@@ -1,14 +1,14 @@
 from contextlib import asynccontextmanager
 
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from dotenv import load_dotenv
+
+load_dotenv()
 
 from api.routes.handshake import router as handshake_router
 from api.routes.health import router as health_router
 from gcp.logging import configure_logging
-
-load_dotenv()
 
 
 @asynccontextmanager

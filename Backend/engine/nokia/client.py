@@ -92,6 +92,7 @@ class NokiaClient:
         *,
         json: Optional[Dict[str, Any]] = None,
         params: Optional[Dict[str, Any]] = None,
+        extra_headers: Optional[Dict[str, str]] = None,
         timeout_seconds: Optional[float] = None,
         retries: int = 3,
     ) -> Optional[Dict[str, Any]]:
@@ -100,6 +101,7 @@ class NokiaClient:
             path,
             json=json,
             params=params,
+            extra_headers=extra_headers,
             timeout_seconds=timeout_seconds,
             retries=retries,
         )
@@ -112,6 +114,7 @@ class NokiaClient:
         *,
         json: Optional[Dict[str, Any]] = None,
         params: Optional[Dict[str, Any]] = None,
+        extra_headers: Optional[Dict[str, str]] = None,
         timeout_seconds: Optional[float] = None,
         retries: int = 3,
     ) -> Dict[str, Any]:
@@ -153,6 +156,9 @@ class NokiaClient:
                 "Authorization": f"Bearer {token}",
                 "Content-Type": "application/json",
             }
+
+        if extra_headers:
+            headers.update(extra_headers)
 
         last_error: Optional[str] = None
         last_status: Optional[int] = None
@@ -253,6 +259,7 @@ class NokiaClient:
         *,
         json: Optional[Dict[str, Any]] = None,
         params: Optional[Dict[str, Any]] = None,
+        extra_headers: Optional[Dict[str, str]] = None,
         timeout_seconds: Optional[float] = None,
         retries: int = 2,
     ) -> Optional[Dict[str, Any]]:
@@ -261,6 +268,7 @@ class NokiaClient:
             paths,
             json=json,
             params=params,
+            extra_headers=extra_headers,
             timeout_seconds=timeout_seconds,
             retries=retries,
         )
@@ -273,6 +281,7 @@ class NokiaClient:
         *,
         json: Optional[Dict[str, Any]] = None,
         params: Optional[Dict[str, Any]] = None,
+        extra_headers: Optional[Dict[str, str]] = None,
         timeout_seconds: Optional[float] = None,
         retries: int = 2,
     ) -> Dict[str, Any]:
@@ -291,6 +300,7 @@ class NokiaClient:
                 path,
                 json=json,
                 params=params,
+                extra_headers=extra_headers,
                 timeout_seconds=timeout_seconds,
                 retries=retries,
             )
@@ -300,6 +310,8 @@ class NokiaClient:
 
             status_code = result.get("status_code")
             if status_code == 403:
+                return result
+            if isinstance(status_code, int) and 400 <= status_code < 500 and status_code != 404:
                 return result
 
         return last_result

@@ -44,9 +44,13 @@ class IntegrityLayer:
             if sim_swapped:
                 score_delta -= 40
 
-            device_swap = await self.client.request(
+            device_swap = await self.client.request_first(
                 "POST",
-                "/device-swap/v0/check",
+                [
+                    "/passthrough/camara/v1/device-swap/device-swap/v1/check",
+                    "/device-swap/v1/check",
+                    "/device-swap/v0/check",
+                ],
                 json={"phoneNumber": normalized, "maxAge": 240},
             )
             device_swapped = bool((device_swap or {}).get("swapped", False))
@@ -55,13 +59,20 @@ class IntegrityLayer:
                 score_delta -= 30
 
             recycling = await self.number_recycling_api.check(normalized, max_age=720)
-            recycled = bool((recycling or {}).get("recycled", False))
+            recycled = bool(
+                (recycling or {}).get("recycled", (recycling or {}).get("phoneNumberRecycled", False))
+            )
             signals["number_recycled"] = recycled
             if recycled:
                 score_delta -= 35
 
             forwarding = await self.call_forwarding_api.check(normalized)
-            forwarding_active = bool((forwarding or {}).get("active", False))
+            forwarding_active = bool(
+                (forwarding or {}).get(
+                    "active",
+                    (forwarding or {}).get("unconditionalForwarding", (forwarding or {}).get("callForwarding", False)),
+                )
+            )
             signals["call_forwarding_active"] = forwarding_active
             if forwarding_active:
                 score_delta -= 20

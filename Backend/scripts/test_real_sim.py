@@ -49,9 +49,13 @@ async def run_smoke_test(phone_number: str, latitude: Optional[float], longitude
         ("sim_swap", sim_swap_api.check_detailed(normalized, max_age=240)),
         (
             "device_swap",
-            client.request_detailed(
+            client.request_first_detailed(
                 "POST",
-                "/device-swap/v0/check",
+                [
+                    "/passthrough/camara/v1/device-swap/device-swap/v1/check",
+                    "/device-swap/v1/check",
+                    "/device-swap/v0/check",
+                ],
                 json={"phoneNumber": normalized, "maxAge": 240},
             ),
         ),

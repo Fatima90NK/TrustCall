@@ -65,13 +65,18 @@ class ContextLayer:
                     score_delta -= 20
 
             tenure = await self.kyc_api.tenure(normalized)
+            tenure_available = tenure is not None
             tenure_months = int((tenure or {}).get("tenureMonths", 0))
+            if tenure_months == 0 and "tenureDateCheck" in (tenure or {}):
+                tenure_months = 24 if bool((tenure or {}).get("tenureDateCheck")) else 0
+            signals["tenure_available"] = tenure_available
             signals["tenure_months"] = tenure_months
 
-            if tenure_months > 24:
-                score_delta += 10
-            elif tenure_months < 3:
-                score_delta -= 5
+            if tenure_available:
+                if tenure_months > 24:
+                    score_delta += 10
+                elif tenure_months < 3:
+                    score_delta -= 5
         except Exception as exc:
             latency_ms = int((time.perf_counter() - started) * 1000)
             return LayerResult(

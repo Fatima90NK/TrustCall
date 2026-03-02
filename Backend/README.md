@@ -1,53 +1,90 @@
-# TrustCall Backend (Handoff)
+# TrustCall Backend (Current Handoff)
 
-This backend is now runnable locally and ready for parallel deployment work while API coverage is expanded.
+Backend is runnable and actively integrated with Nokia Network as Code via RapidAPI. The trust-handshake workflow is working end-to-end with graceful degradation and real-number testing.
 
-## Current Status
+## Implemented Scope
 
-Implemented so far:
-- Phase 1: FastAPI app foundation, models, auth middleware, env loading, Dockerfile
-- Phase 2: Nokia client + endpoint wrappers
-- Phase 3: Layer evaluators (identity, integrity, context, quality, ai)
-- Phase 4: Scoring + trust engine orchestration
-- Phase 5: `/v1/trust-handshake` and `/v1/trust-handshake/{request_id}`
-- RapidAPI support mode in Nokia client (`RAPIDAPI_KEY`)
-- Real-SIM smoke test script with per-endpoint diagnostics
+- FastAPI backend, models, middleware, Dockerfile, env loading
+- Nokia client with RapidAPI mode + OAuth fallback
+- Layered trust engine (identity, integrity, context, quality, ai)
+- Weighted scoring, badge assignment, TTL policy
+- Routes:
+  - `POST /v1/trust-handshake`
+  - `GET /v1/trust-handshake/{request_id}`
+- Firestore read/write integration for handshake persistence
+- Real SIM smoke test and local handshake test scripts
 
-## Known RapidAPI Test Results (current product set)
+## Live API Coverage
 
-Using test number `+99999991000` with current credentials:
-- Working:
-  - `POST /device-status/v0/connectivity`
-  - `POST /location-retrieval/v0/retrieve`
-- Not currently available in this RapidAPI subscription (404 in tests):
-  - number verification
-  - sim swap
-  - device swap
-  - number recycling
-  - call forwarding
-  - kyc tenure
+### Working now (RapidAPI)
 
-Server still runs and handshake works with graceful degradation when some APIs are unavailable.
+- `POST /passthrough/camara/v1/sim-swap/sim-swap/v0/check`
+- `POST /passthrough/camara/v1/device-swap/device-swap/v1/check`
+- `POST /passthrough/camara/v1/number-recycling/number-recycling/v0.2/check`
+- `POST /passthrough/camara/v1/call-forwarding-signal/call-forwarding-signal/v0.3/unconditional-call-forwardings`
+- `POST /device-status/v0/connectivity`
+- `POST /location-retrieval/v0/retrieve`
+
+### Conditionally working
+
+- `POST /passthrough/camara/v1/kyc-tenure/kyc-tenure/v0.1/check-tenure`
+  - Works on simulator numbers with matching scenario date (e.g. `2023-07-03`)
+  - Real number may return `400` if tenure date does not match operator scenario
+
+### Requires consent flow
+
+- `POST /passthrough/camara/v1/number-verification/number-verification/v0/verify`
+  - Currently returns `401 Authorization header is missing` unless consent token/code is provided
+  - Needs either:
+    - `Authorization: Bearer <single-use-access-token>`
+    - or fast flow `?code=<code>&state=<state>`
+
+## Scoring Behavior (Current)
+
+- Unavailable identity/context checks are neutralized (score delta `0`) instead of penalized.
+- High-confidence negative integrity signals still apply penalties.
+- This keeps workflow usable while Number Verification and some tenure scenarios are not fully configured.
+
+## Latest Handshake Snapshot (real number)
+
+Input: `+34640032379`
+
+- `badge`: `UNTRUSTED`
+- `composite_score`: `0`
+- Layer deltas:
+  - `identity`: `0` (neutral; number verification not authorized)
+  - `integrity`: `-50` (`device_swapped=true`, `call_forwarding_active=true`)
+  - `context`: `0` (neutral; tenure unavailable)
+  - `quality`: `+10` (`CONNECTED_DATA`)
+  - `ai`: `-15` (`risk_label=high`)
 
 ## Required Local Environment
 
 Create `Backend/.env`:
 
 ```bash
-# RapidAPI mode (recommended for local right now)
+# RapidAPI mode
 RAPIDAPI_KEY=<your-rapidapi-key>
 RAPIDAPI_HOST=network-as-code.nokia.rapidapi.com
 RAPIDAPI_BASE_URL=https://network-as-code.p-eu.rapidapi.com
 
-# Local API protection for TrustCall routes
+# TrustCall local API auth
 TRUSTCALL_API_KEY=<your-local-key>
 
-# Optional
+# Optional runtime
 NOKIA_REQUEST_TIMEOUT=10
 TRUSTCALL_APP_IPV4=<public-ip-for-qod-if-needed>
+
+# Number Verification (consent-based, optional)
+NUMBER_VERIFICATION_BEARER_TOKEN=<single-use-token>
+NUMBER_VERIFICATION_CODE=<fast-flow-code>
+NUMBER_VERIFICATION_STATE=<fast-flow-state>
+
+# KYC tenure scenario override (optional)
+KYC_TENURE_DATE=2023-07-03
 ```
 
-## How to Run Server
+## Run Locally
 
 ```bash
 cd Backend
@@ -63,47 +100,29 @@ Health check:
 curl http://127.0.0.1:8000/health
 ```
 
-## Test Case (Smoke Test)
+## Test Commands
 
-Run real-number/sandbox diagnostics:
-
-```bash
-python scripts/test_real_sim.py --phone "+99999991000"
-```
-
-Optional location verify:
+Smoke test:
 
 ```bash
-python scripts/test_real_sim.py --phone "+99999991000" --latitude <lat> --longitude <lng>
+python scripts/test_real_sim.py --phone "+34640032379"
 ```
 
-## API Test Case (Handshake)
+Handshake test:
 
 ```bash
-curl -X POST "http://127.0.0.1:8000/v1/trust-handshake" \
-  -H "Content-Type: application/json" \
-  -H "x-api-key: <TRUSTCALL_API_KEY>" \
-  -d '{
-    "phone_number": "+99999991000",
-    "use_case": "generic",
-    "requested_layers": ["identity", "integrity", "context", "quality", "ai"]
-  }'
+TRUSTCALL_API_KEY=<TRUSTCALL_API_KEY> TEST_PHONE_E164=+34640032379 ./scripts/test_handshake_local.sh
 ```
 
-Example expected behavior right now:
-- returns `200`
-- includes `badge`, `composite_score`, and `layer_results`
-- unavailable APIs degrade gracefully instead of crashing
+## Deployment Notes
 
-## Notes for Deployment Teammate
+- ASGI entrypoint: `main:app`
+- Container port: `8080` (Dockerfile)
+- Secrets/env can be injected without code changes
+- Firestore persistence is already wired for handshake responses
 
-- Service entrypoint: `main:app`
-- Container target port: `8080` in `Dockerfile`
-- Secrets/env can be wired without changing code
-- Firestore write/read is already integrated in handshake routes
+## Next Work
 
-## Next Backend Work (kept for now)
-
-- Map remaining wrappers to exact RapidAPI endpoints enabled in subscription
-- Add per-API capability flags so unavailable products are automatically excluded from scoring
-- Add unit tests + integration tests for engine/layers
+- Add Number Verification consent helper endpoints (`state`, callback `code` capture)
+- Add capability flags so unavailable APIs are explicitly skipped in layer execution
+- Add automated tests for layer logic and trust engine orchestration

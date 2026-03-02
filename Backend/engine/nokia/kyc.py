@@ -1,3 +1,5 @@
+import os
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
 
 from .client import NokiaClient
@@ -36,6 +38,19 @@ class KYCAPI:
         return await self.client.request("POST", "/kyc-age-verification/v0/verify", json=payload)
 
     async def tenure(self, phone_number: str) -> Optional[Dict[str, Any]]:
+        if self.client.is_rapidapi_mode:
+            tenure_date = os.getenv("KYC_TENURE_DATE") or (
+                datetime.now(timezone.utc) - timedelta(days=365)
+            ).date().isoformat()
+            payload = {
+                "phoneNumber": phone_number,
+                "tenureDate": tenure_date,
+            }
+            paths = [
+                "/passthrough/camara/v1/kyc-tenure/kyc-tenure/v0.1/check-tenure",
+            ]
+            return await self.client.request_first("POST", paths, json=payload)
+
         params = {"phoneNumber": phone_number}
         paths = [
             "/kyc-tenure/v0/check",
@@ -45,6 +60,19 @@ class KYCAPI:
         return await self.client.request_first("GET", paths, params=params)
 
     async def tenure_detailed(self, phone_number: str) -> Dict[str, Any]:
+        if self.client.is_rapidapi_mode:
+            tenure_date = os.getenv("KYC_TENURE_DATE") or (
+                datetime.now(timezone.utc) - timedelta(days=365)
+            ).date().isoformat()
+            payload = {
+                "phoneNumber": phone_number,
+                "tenureDate": tenure_date,
+            }
+            paths = [
+                "/passthrough/camara/v1/kyc-tenure/kyc-tenure/v0.1/check-tenure",
+            ]
+            return await self.client.request_first_detailed("POST", paths, json=payload)
+
         params = {"phoneNumber": phone_number}
         paths = [
             "/kyc-tenure/v0/check",

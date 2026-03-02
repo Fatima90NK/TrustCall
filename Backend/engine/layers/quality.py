@@ -38,7 +38,10 @@ class QualityLayer:
 
         try:
             connectivity = await self.device_status_api.connectivity(normalized)
-            status = (connectivity or {}).get("connectivityStatus", "UNKNOWN")
+            status = (connectivity or {}).get(
+                "connectivityStatus",
+                (connectivity or {}).get("connectivity_status", "UNKNOWN"),
+            )
             signals["connectivity_status"] = status
 
             if status == "CONNECTED_DATA":
