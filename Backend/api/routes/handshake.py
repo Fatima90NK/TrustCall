@@ -1,12 +1,13 @@
-from uuid import uuid4
-
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from api.middleware.auth import require_api_key
 from api.models.request import TrustCallRequest
-from api.models.response import LayerResult, TrustCallResponse
+from api.models.response import TrustCallResponse
+from engine.trust_engine import TrustCallEngine
+from gcp.firestore import get_handshake, save_handshake
 
 router = APIRouter(prefix="/v1", tags=["trust"])
+engine = TrustCallEngine()
 
 
 @router.post("/trust-handshake", response_model=TrustCallResponse)
@@ -14,21 +15,21 @@ async def trust_handshake(
     payload: TrustCallRequest,
     _: None = Depends(require_api_key),
 ) -> TrustCallResponse:
-    request_id = str(uuid4())
+    response = await engine.run(payload)
+    save_handshake(response.request_id, response.model_dump(mode="python"))
+    return response
 
-    return TrustCallResponse(
-        request_id=request_id,
-        phone_number=payload.phone_number,
-        badge="CAUTION",
-        composite_score=50,
-        layer_results={
-            "foundation": LayerResult(
-                score_delta=0,
-                signals={"phase": "phase_1_baseline"},
-                apis_called=[],
-                latency_ms=0,
-            )
-        },
-        confidence=0.5,
-        ttl_seconds=300,
-    )
+
+@router.get("/trust-handshake/{request_id}", response_model=TrustCallResponse)
+async def get_trust_handshake(
+    request_id: str,
+    _: None = Depends(require_api_key),
+) -> TrustCallResponse:
+    result = get_handshake(request_id)
+    if not result:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Handshake request not found.",
+        )
+
+    return TrustCallResponse.model_validate(result)
