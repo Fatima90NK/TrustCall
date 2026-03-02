@@ -16,6 +16,41 @@ Backend is runnable and actively integrated with Nokia Network as Code via Rapid
 
 ## Live API Coverage
 
+## Handshake Signal Guide (what each API does)
+
+- `Number Verification`
+  - Confirms whether the SIM in the end-user device matches the phone number claimed by the caller.
+  - In TrustCall, this is an identity-confidence signal (positive when verified).
+  - Requires 3-legged consent flow (`Bearer` token or `code/state`).
+
+- `SIM Swap`
+  - Checks if the subscriber SIM was recently changed.
+  - In TrustCall, recent SIM changes are treated as strong fraud-risk indicators.
+
+- `Device Swap`
+  - Checks if the device association for the number recently changed.
+  - In TrustCall, recent device changes increase account-takeover risk.
+
+- `Number Recycling`
+  - Checks if the number was re-assigned to a new subscriber.
+  - In TrustCall, recycled numbers reduce identity continuity confidence.
+
+- `Call Forwarding Signal`
+  - Indicates whether unconditional call forwarding is active.
+  - In TrustCall, active forwarding can indicate interception/impersonation risk.
+
+- `Device Status (Connectivity)`
+  - Returns current network reachability/connectivity state for the device.
+  - In TrustCall, healthy connectivity adds a small quality-confidence boost.
+
+- `Location Retrieval`
+  - Returns a recent coarse device location area from network data.
+  - In TrustCall, used as context evidence and can support location-based checks.
+
+- `KYC Tenure`
+  - Verifies whether subscriber tenure is older than a provided threshold date.
+  - In TrustCall, long tenure supports stability; unavailable/mismatched scenario is neutralized.
+
 ### Working now (RapidAPI)
 
 - `POST /passthrough/camara/v1/sim-swap/sim-swap/v0/check`
