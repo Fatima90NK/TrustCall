@@ -36,32 +36,41 @@ function App() {
       </div>
     </div>
 
-      <button className="verify-btn" onClick={verifyCall}>
-        Verify Call
-      </button>
+      <div className="right-side">
+        <div className="action-row">
+          <button className="verify-btn" onClick={verifyCall} disabled={loading}>
+            Verify Call
+          </button>
+          {loading && (
+            <span className="loading" aria-live="polite">
+              Verifying…
+            </span>
+          )}
+        </div>
 
-      {loading && <p className="loading">Verifying...</p>}
-
-      {result ? (
         <div className="result-section">
           <h2>Verification Result</h2>
-          <p><strong>Trust Score:</strong> {result.trust_score}</p>
-          <div className={`badge badge--${result.status === "VERIFIED" ? "verified" : "unverified"}`}>
-            {result.status}
-          </div>
-          <div className="result-details">
-            <p>SIM Status: {result.details.sim_status}</p>
-            <p>Device Match: {result.details.device_match}</p>
-            <p>Location Match: {result.details.location_match}</p>
-          </div>
+          {loading && (
+            <p className="result-placeholder">Checking call authenticity…</p>
+          )}
+          {!loading && result && (
+            <>
+              <p><strong>Trust Score:</strong> {result.trust_score}</p>
+              <div className={`badge badge--${result.status === "VERIFIED" ? "verified" : "unverified"}`}>
+                {result.status}
+              </div>
+              <div className="result-details">
+                <p>SIM Status: {result.details.sim_status}</p>
+                <p>Device Match: {result.details.device_match}</p>
+                <p>Location Match: {result.details.location_match}</p>
+              </div>
+            </>
+          )}
+          {!loading && !result && (
+            <p className="result-placeholder">No result yet. Click Verify Call to check.</p>
+          )}
         </div>
-      ) : 
-      <div className="result-section"> 
-        <h2>Verification Result</h2>
-        <p>No result yet</p>
       </div>
-      
-      }
     </div>
   )
 }
