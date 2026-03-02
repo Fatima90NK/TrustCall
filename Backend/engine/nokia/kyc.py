@@ -37,7 +37,21 @@ class KYCAPI:
 
     async def tenure(self, phone_number: str) -> Optional[Dict[str, Any]]:
         params = {"phoneNumber": phone_number}
-        return await self.client.request("GET", "/kyc-tenure/v0/check", params=params)
+        paths = [
+            "/kyc-tenure/v0/check",
+            "/kyc/tenure/v0/check",
+            "/kyc-tenure/v1/check",
+        ]
+        return await self.client.request_first("GET", paths, params=params)
+
+    async def tenure_detailed(self, phone_number: str) -> Dict[str, Any]:
+        params = {"phoneNumber": phone_number}
+        paths = [
+            "/kyc-tenure/v0/check",
+            "/kyc/tenure/v0/check",
+            "/kyc-tenure/v1/check",
+        ]
+        return await self.client.request_first_detailed("GET", paths, params=params)
 
     async def fill_in(
         self,

@@ -10,4 +10,21 @@ class SimSwapAPI:
             "phoneNumber": phone_number,
             "maxAge": max_age,
         }
-        return await self.client.request("POST", "/sim-swap/v0/check", json=payload)
+        paths = [
+            "/sim-swap/v0/check",
+            "/sim-swap/v1/check",
+            "/sim-swap/v0/retrieve",
+        ]
+        return await self.client.request_first("POST", paths, json=payload)
+
+    async def check_detailed(self, phone_number: str, max_age: int = 240) -> dict:
+        payload = {
+            "phoneNumber": phone_number,
+            "maxAge": max_age,
+        }
+        paths = [
+            "/sim-swap/v0/check",
+            "/sim-swap/v1/check",
+            "/sim-swap/v0/retrieve",
+        ]
+        return await self.client.request_first_detailed("POST", paths, json=payload)

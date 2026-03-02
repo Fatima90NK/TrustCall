@@ -1,9 +1,11 @@
+from typing import Optional
+
 from fastapi import Header, HTTPException, status
 
 from gcp.secrets import get_secret
 
 
-async def require_api_key(x_api_key: str | None = Header(default=None)) -> None:
+async def require_api_key(x_api_key: Optional[str] = Header(default=None)) -> None:
     expected_api_key = get_secret("trustcall/api-key")
 
     if not expected_api_key:

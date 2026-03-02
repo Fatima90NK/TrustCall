@@ -10,4 +10,19 @@ class NumberRecyclingAPI:
             "phoneNumber": phone_number,
             "maxAge": max_age,
         }
-        return await self.client.request("POST", "/number-recycling/v0/check", json=payload)
+        paths = [
+            "/number-recycling/v0/check",
+            "/number-recycling/v1/check",
+        ]
+        return await self.client.request_first("POST", paths, json=payload)
+
+    async def check_detailed(self, phone_number: str, max_age: int = 720) -> dict:
+        payload = {
+            "phoneNumber": phone_number,
+            "maxAge": max_age,
+        }
+        paths = [
+            "/number-recycling/v0/check",
+            "/number-recycling/v1/check",
+        ]
+        return await self.client.request_first_detailed("POST", paths, json=payload)

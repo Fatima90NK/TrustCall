@@ -12,7 +12,22 @@ class LocationAPI:
             "device": {"phoneNumber": phone_number},
             "maxAge": max_age,
         }
-        return await self.client.request("POST", "/device-location/v0/retrieve", json=payload)
+        paths = [
+            "/device-location/v0/retrieve",
+            "/location-retrieval/v0/retrieve",
+        ]
+        return await self.client.request_first("POST", paths, json=payload)
+
+    async def retrieve_detailed(self, phone_number: str, max_age: int = 60) -> Dict[str, Any]:
+        payload = {
+            "device": {"phoneNumber": phone_number},
+            "maxAge": max_age,
+        }
+        paths = [
+            "/device-location/v0/retrieve",
+            "/location-retrieval/v0/retrieve",
+        ]
+        return await self.client.request_first_detailed("POST", paths, json=payload)
 
     async def verify(
         self,
@@ -25,7 +40,28 @@ class LocationAPI:
             "area": area,
             "maxAge": max_age,
         }
-        return await self.client.request("POST", "/device-location/v0/verify", json=payload)
+        paths = [
+            "/device-location/v0/verify",
+            "/location-verification/v0/verify",
+        ]
+        return await self.client.request_first("POST", paths, json=payload)
+
+    async def verify_detailed(
+        self,
+        phone_number: str,
+        area: Dict[str, Any],
+        max_age: int = 60,
+    ) -> Dict[str, Any]:
+        payload = {
+            "device": {"phoneNumber": phone_number},
+            "area": area,
+            "maxAge": max_age,
+        }
+        paths = [
+            "/device-location/v0/verify",
+            "/location-verification/v0/verify",
+        ]
+        return await self.client.request_first_detailed("POST", paths, json=payload)
 
     async def create_geofence_subscription(
         self,
@@ -38,4 +74,8 @@ class LocationAPI:
             "area": area,
             "sink": sink,
         }
-        return await self.client.request("POST", "/geofencing/v0/subscriptions", json=payload)
+        paths = [
+            "/geofencing/v0/subscriptions",
+            "/geofencing/v1/subscriptions",
+        ]
+        return await self.client.request_first("POST", paths, json=payload)
