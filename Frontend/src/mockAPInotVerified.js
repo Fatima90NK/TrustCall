@@ -8,12 +8,12 @@ export async function verifyCallMock() {
   return {
     caller: "+34 600 123 456",
     recipient: "+34 600 987 654",
-    trust_score: 91,
-    status: "VERIFIED",
+    trust_score: 10,
+    status: "FRAUDLENT",
     details: {
-      sim_status: "Stable ✔",
-      device_match: "Yes ✔",
-      location_match: "Yes ✔"
+      sim_status: "not stable ✖",
+      device_match: "not matched ✖",
+      location_match: "not matched ✖"
     }
   }
 }

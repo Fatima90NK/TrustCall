@@ -1,5 +1,8 @@
 import { useState } from "react"
-import { verifyCallMock } from "./mockApi"
+//TODO: Interesting the file reference dont need to be uppercase like the file.js
+import { verifyCallMock as verifyCallVerified } from "./mockAPI"
+import { verifyCallMock as verifyCallNotVerified } from "./mockAPInotVerified"
+
 
 function App() {
   const [result, setResult] = useState(null)
@@ -9,9 +12,12 @@ function App() {
     setLoading(true)
     setResult(null)
 
+    const chosenVerifyCall =
+      Date.now() % 2 === 0 ? verifyCallVerified : verifyCallNotVerified
+
     try {
       // Call the mock API instead of real backend
-      const data = await verifyCallMock()
+      const data = await chosenVerifyCall()
       setResult(data)
     } catch (err) {
       console.error(err)
@@ -21,7 +27,9 @@ function App() {
   }
 
   const getBadgeStyle = () => {
-    if (!result) return {}
+    console.log(result);
+    if (!result) return {/* TODO: thinking component */}
+    //TODO: badge component
     return {
       padding: "10px 20px",
       borderRadius: "8px",
