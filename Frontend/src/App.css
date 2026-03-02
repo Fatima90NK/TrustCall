@@ -19,9 +19,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   padding: 40px;
   margin-right: 50px;
+  min-height: 860px;
 }
 
 .description {
@@ -76,20 +76,28 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-width: 320px;
+  width: 420px;
+  flex-shrink: 0;
 }
 
 .action-row {
   display: flex;
   align-items: center;
-  gap: 16px;
+  justify-content: center;
   min-height: 44px;
-  margin-bottom: 24px;
+  margin-bottom: 8px;
 }
 
-.loading {
+.action-feedback {
+  height: 1.5em;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: rgba(255, 255, 255, 0.7);
   font-size: 0.95rem;
+  text-align: center;
+  white-space: nowrap;
 }
 
 .verify-btn:disabled {
@@ -99,14 +107,12 @@
 
 .result-section {
   margin-top: 0;
-  min-height: 220px;
   width: 100%;
-  max-width: 360px;
-  padding: 24px;
-  background: rgba(255, 255, 255, 0.04);
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-sizing: border-box;
+  max-width: 420px;
+  min-height: 860px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .result-section h2 {
@@ -121,6 +127,72 @@
 .result-placeholder {
   color: rgba(255, 255, 255, 0.5);
   margin-top: 0.5em;
+}
+
+/* Size comes from image; mockup wraps it so no explicit width on .phone-mockup */
+.phone-mockup {
+  position: relative;
+  width: fit-content;
+  flex-shrink: 0;
+  aspect-ratio: 9 / 19;
+  min-height: 420px;
+}
+
+.phone-mockup__frame {
+  display: block;
+  width: 380px;
+  height: auto;
+  object-fit: contain;
+  object-position: center top;
+}
+
+.phone-mockup__screen {
+  position: absolute;
+  left: 50%;
+  top: 2%;
+  transform: translateX(-50%);
+  width: 46%;
+  height: 44%;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  background: #0f172a;
+  border-radius: 6%;
+  padding: 5% 4%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.3;
+  min-height: 0;
+  z-index: -5;
+}
+
+.phone-mockup__screen > * {
+  flex-shrink: 0;
+}
+
+.phone-mockup__screen p {
+  margin: 0.25em 0;
+}
+
+.phone-mockup__screen .result-details {
+  margin-top: 6px;
+  padding: 6px 8px;
+  width: 100%;
+  font-size: 0.95em;
+}
+
+.phone-mockup__screen .result-details p {
+  margin: 0.2em 0;
+}
+
+.phone-mockup__screen .badge {
+  padding: 4px 10px;
+  font-size: 0.9em;
+  margin-top: 0.25em;
 }
 
 .badge {

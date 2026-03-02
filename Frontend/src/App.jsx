@@ -6,10 +6,12 @@ import "./App.css"
 function App() {
   const [result, setResult] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [mockupImageLoaded, setMockupImageLoaded] = useState(false)
 
   const verifyCall = async () => {
     setLoading(true)
     setResult(null)
+    setMockupImageLoaded(false)
 
     const chosenVerifyCall =
       Date.now() % 2 === 0 ? verifyCallVerified : verifyCallNotVerified
@@ -41,30 +43,38 @@ function App() {
           <button className="verify-btn" onClick={verifyCall} disabled={loading}>
             Verify Call
           </button>
-          {loading && (
-            <span className="loading" aria-live="polite">
-              Verifying…
-            </span>
-          )}
         </div>
+        {/* <div className="action-feedback" aria-live="polite">
+          {loading ? "Verifying…" : "\u00A0"}
+        </div> */}
 
         <div className="result-section">
           <h2>Verification Result</h2>
           {loading && (
-            <p className="result-placeholder">Checking call authenticity…</p>
+            <p className="result-placeholder">calculating</p>
           )}
           {!loading && result && (
-            <>
-              <p><strong>Trust Score:</strong> {result.trust_score}</p>
-              <div className={`badge badge--${result.status === "VERIFIED" ? "verified" : "unverified"}`}>
-                {result.status}
-              </div>
-              <div className="result-details">
-                <p>SIM Status: {result.details.sim_status}</p>
-                <p>Device Match: {result.details.device_match}</p>
-                <p>Location Match: {result.details.location_match}</p>
-              </div>
-            </>
+            <div className="phone-mockup">
+              <img
+                src="/vecteezy_smartphone-and-mobile-phone_11047526.png"
+                alt="Smartphone mockup frame"
+                className="phone-mockup__frame"
+                onLoad={() => setMockupImageLoaded(true)}
+              />
+              {mockupImageLoaded && (
+                <div className="phone-mockup__screen">
+                  <p><strong>Trust Score:</strong> {result.trust_score}</p>
+                  <div className={`badge badge--${result.status === "VERIFIED" ? "verified" : "unverified"}`}>
+                    {result.status}
+                  </div>
+                  <div className="result-details">
+                    <p>SIM Status: {result.details.sim_status}</p>
+                    <p>Device Match: {result.details.device_match}</p>
+                    <p>Location Match: {result.details.location_match}</p>
+                  </div>
+                </div>
+              )}
+            </div>
           )}
           {!loading && !result && (
             <p className="result-placeholder">No result yet. Click Verify Call to check.</p>
