@@ -1,34 +1,74 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react"
+import { verifyCallMock } from "./mockApi"
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [result, setResult] = useState(null)
+  const [loading, setLoading] = useState(false)
+
+  const verifyCall = async () => {
+    setLoading(true)
+    setResult(null)
+
+    try {
+      // Call the mock API instead of real backend
+      const data = await verifyCallMock()
+      setResult(data)
+    } catch (err) {
+      console.error(err)
+    }
+
+    setLoading(false)
+  }
+
+  const getBadgeStyle = () => {
+    if (!result) return {}
+    return {
+      padding: "10px 20px",
+      borderRadius: "8px",
+      fontWeight: "bold",
+      color: "white",
+      backgroundColor: result.status === "VERIFIED" ? "#16a34a" : "#dc2626"
+    }
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div style={{ fontFamily: "Arial", padding: "40px" }}>
+      <h1>📞 TrustCall</h1>
+      <h3>Incoming Call Simulation</h3>
+
+      <div style={{ marginBottom: "20px" }}>
+        <p><strong>Caller:</strong> Santander Fraud Team</p>
+        <p><strong>Number:</strong> +34 600 123 456</p>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+
+      <button
+        onClick={verifyCall}
+        style={{
+          padding: "10px 20px",
+          fontSize: "16px",
+          cursor: "pointer"
+        }}
+      >
+        Verify Call
+      </button>
+
+      {loading && <p>Verifying...</p>}
+
+      {result && (
+        <div style={{ marginTop: "30px" }}>
+          <h2>Verification Result</h2>
+          <p><strong>Trust Score:</strong> {result.trust_score}</p>
+          <div style={getBadgeStyle()}>
+            {result.status}
+          </div>
+          <div style={{ marginTop: "10px" }}>
+            <p>SIM Status: {result.details.sim_status}</p>
+            <p>Device Match: {result.details.device_match}</p>
+            <p>Location Match: {result.details.location_match}</p>
+          </div>
+        </div>
+      )}
+    </div>
   )
 }
 
