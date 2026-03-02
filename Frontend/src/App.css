@@ -1,42 +1,119 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+/* TrustCall - Centralized Styles */
+
+
+.app {
+  font-family: system-ui, Arial, sans-serif;
+  padding: 40px;
+  /* max-width: 640px; */
+  width: 100%;
+  /* margin: 0 auto; */
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
   text-align: center;
+  gap: 40px
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+left-side {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  margin-right: 50px;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.description {
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 20px;
+  max-width: 400px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.app h1 {
+  margin: 0 0 0.25em;
+  font-size: 2rem;
 }
 
-.card {
-  padding: 2em;
+.app h3 {
+  margin: 0 0 1.5em;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
 }
 
-.read-the-docs {
-  color: #888;
+.caller-info {
+  margin-bottom: 20px;
+}
+
+.caller-info p {
+  margin: 0.25em 0;
+}
+
+.verify-btn {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #646cff;
+  color: white;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.verify-btn:hover {
+  background-color: #535bf2;
+}
+
+.verify-btn:focus,
+.verify-btn:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+.loading {
+  margin-top: 1em;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.result-section {
+  margin-top: 30px;
+}
+
+.result-section h2 {
+  margin: 0 0 1em;
+  font-size: 1.5rem;
+}
+
+.result-section p {
+  margin: 0.25em 0;
+}
+
+.badge {
+  display: inline-block;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  color: white;
+  margin-top: 0.5em;
+}
+
+.badge--verified {
+  background-color: #16a34a;
+}
+
+.badge--unverified {
+  background-color: #dc2626;
+}
+
+.result-details {
+  margin-top: 10px;
+  padding: 1em;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+}
+
+.result-details p {
+  margin: 0.35em 0;
 }
