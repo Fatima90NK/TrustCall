@@ -25,29 +25,57 @@
 }
 
 .description {
-  font-size: 1.2rem;
-  color: rgba(255, 255, 255, 0.7);
+  font-size: 18px;
+  line-height: 1.6;
+  color: #cbd5e1;
+  margin-bottom: 40px;
+  max-width: 460px;
+}
+
+.left-side h1 {
+  font-size: 42px;
+  font-weight: 700;
   margin-bottom: 20px;
-  max-width: 400px;
+  background: linear-gradient(90deg, #ffffff, #93c5fd);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.app h1 {
-  margin: 0 0 0.25em;
-  font-size: 2rem;
-}
-
-.app h3 {
-  margin: 0 0 1.5em;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.7);
+.left-side h3 {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #93c5fd;
+  margin-bottom: 20px;
 }
 
 .caller-info {
-  margin-bottom: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 24px;
+  width: 100%;
+  max-width: 420px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
 .caller-info p {
-  margin: 0.25em 0;
+  margin: 10px 0;
+  font-size: 16px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.caller-info strong {
+  color: #94a3b8;
+  font-weight: 700;
+}
+
+.caller-info:hover {
+  transform: translateY(-3px);
+  transition: transform 0.2s ease;
 }
 
 .verify-btn {
@@ -221,4 +249,18 @@
 
 .result-details p {
   margin: 0.35em 0;
+}
+
+.section-label {
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: #93c5fd;
+  margin-bottom: 20px;
+}
+
+.section-label {
+  font-family: monospace;
 }

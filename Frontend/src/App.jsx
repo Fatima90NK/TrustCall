@@ -28,15 +28,36 @@ function App() {
 
   return (
     <div className="app">
-      <div className="left-side">
-        <h1>📞 TrustCall</h1>
-        <p className="description">TrustCall is a network-level caller identity engine that verifies calls in real time and assigns a trust score before you answer.</p>
-        <h3>Incoming Call Simulation</h3>
-        <div className="caller-info">
-        <p><strong>Caller:</strong> Santander Fraud Team</p>
-        <p><strong>Number:</strong> +34 600 123 456</p>
+<div className="left-side">
+  <div className="brand-row">
+    <span className="brand-icon">📞</span>
+    <h1 className="brand-title">TrustCall</h1>
+  </div>
+
+  <p className="description">
+    Network-level caller identity infrastructure that verifies calls in real time
+    and assigns a trust score before you answer.
+  </p>
+
+  <div className="simulation-card">
+    <div className="simulation-header">
+      <h3 className="section-label">Incoming Call Simulation</h3>
+
+    </div>
+
+    <div className="caller-info">
+      <div className="info-row">
+        <span className="info-label"><strong>Caller:</strong></span>
+        <span className="info-value"> Santander Fraud Team</span>
+      </div>
+
+      <div className="info-row">
+        <span className="info-label"> <strong> Number:</strong> </span>
+        <span className="info-value"> +34 600 123 456</span>
       </div>
     </div>
+  </div>
+</div>
 
       <div className="right-side">
         <div className="action-row">
