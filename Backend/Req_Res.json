@@ -1,0 +1,85 @@
+{
+"request_id":"54ae5eb4-2097-43e7-85f0-e078efe27e0f",
+"phone_number":"+34640032379",
+"badge":"UNTRUSTED",
+"composite_score":0,
+"layer_results":{
+	"identity":{
+		"score_delta":0,
+		"signals":{
+			"phone_number":"+34640032379",
+			"phone_number_valid":true,
+			"number_verification_available":false,
+			"device_phone_number_verified":false,
+			"kyc_fill_in":{},
+			"kyc_match_available":false,
+			"kyc_match_score":0,
+			"weighted_delta":0},
+		"apis_called":[
+			"number_verification",
+			"kyc_fill_in",
+			"kyc_match"],
+		"latency_ms":3639,
+		"error":null},
+	"integrity":{
+		"score_delta":-50,
+		"signals":{
+			"phone_number":"+34640032379",
+			"phone_number_valid":true,
+			"sim_swapped":false,
+			"device_swapped":true,
+			"number_recycled":false,
+			"call_forwarding_active":true,
+			"weighted_delta":-50},
+		"apis_called":[
+			"sim_swap",
+			"device_swap",
+			"number_recycling",
+			"call_forwarding"],
+		"latency_ms":5748,
+		"error":null},
+	"context":{
+		"score_delta":0,
+		"signals":{
+			"phone_number":"+34640032379",
+			"phone_number_valid":true,
+			"location_retrieval":{
+				"lastLocationTime":"2026-03-03T09:07:51.541200Z",
+				"area":{
+					"areaType":"CIRCLE",
+					"center":{"latitude":41.39494869256576,"longitude":2.186611560253754},"radius":1000}},
+					"tenure_available":false,
+					"tenure_months":0,
+					"weighted_delta":0},
+		"apis_called":[
+			"location_retrieval",
+			"location_verification",
+			"kyc_tenure"],
+		"latency_ms":3601,
+		"error":null},
+	"quality":{
+		"score_delta":10,
+		"signals":{
+			"phone_number":"+34640032379",
+			"phone_number_valid":true,
+			"connectivity_status":"CONNECTED_DATA",
+			"qod_status":"UNAVAILABLE",
+			"weighted_delta":10},
+		"apis_called":[
+			"device_status",
+			"qod"],
+		"latency_ms":3125,
+		"error":null},
+	"ai":{
+		"score_delta":-15,
+		"signals":{
+			"risk_label":"high",
+			"red_flags":2,
+			"green_flags":1,
+			"weighted_delta":-15},
+		"apis_called":["rule_engine"],
+		"latency_ms":0,
+		"error":null}},
+"confidence":1.0,
+"timestamp":"2026-03-03T09:09:54.342085Z",
+"ttl_seconds":300}
