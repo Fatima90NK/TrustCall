@@ -1,239 +1,154 @@
 # TrustCall
 
-TrustCall is a telecom-native caller identity verification protocol that restores trust in voice communication.
+Telecom-native caller identity verification using network signals (SIM/device/number integrity) to compute a real-time **Trust Score** before the recipient answers.
 
-It verifies caller identity in real time using carrier-level signals such as SIM integrity, device consistency, and number authenticity, and generates a Trust Score before the recipient answers the call.
+## What’s new (backend)
 
-TrustCall acts as an identity layer for telecommunications, similar to how HTTPS secures the internet.
+The backend has been upgraded from a simple `/verify` prototype into an end-to-end **Trust Handshake** workflow integrated with **Nokia Network as Code** (via **RapidAPI**, with OAuth fallback) and persistent storage.
 
----
-
-# Overview
-
-Phone calls are no longer trusted due to scam calls, SIM swap fraud, and AI voice impersonation.
-
-TrustCall solves this by verifying caller identity at the network level and presenting a real-time Trust Score to the recipient.
-
-This enables users, enterprises, and telecom operators to distinguish legitimate calls from high-risk ones instantly.
+- Primary API: `POST /v1/trust-handshake`
+- Status lookup: `GET /v1/trust-handshake/{request_id}`
+- Persistence: Firestore read/write for handshake results
+- Scoring: layered trust engine (identity, integrity, context, quality, ai) with weighted deltas, badge assignment, and TTL policy
+- Degradation: unavailable/unauthorized signals are neutralized (delta `0`) instead of penalized
 
 ---
 
-# Architecture
+## Architecture (high level)
 
-TrustCall is built using a layered architecture:
+**Interface Layer**
+- FastAPI exposes Trust Handshake endpoints.
 
-Interface Layer
-FastAPI backend exposes verification endpoints.
+**Intelligence Layer**
+- Trust Engine orchestrates telecom identity signals and computes a composite score + badge.
 
-Intelligence Layer
-Trust Engine evaluates telecom identity signals and computes Trust Scores.
+**Data Layer**
+- Firestore persists handshake requests/responses.
+- (Planned/optional) Postgres + Redis are referenced in the prototype README but are not the primary persistence in the current backend handoff.
 
-Data Layer
-PostgreSQL stores call events and audit logs. Redis provides caching for low-latency verification.
-
-Network Layer
-Telecom APIs such as Nokia Network as Code provide carrier-level identity data.
+**Network Layer**
+- Nokia Network as Code (CAMARA APIs) via RapidAPI; OAuth where required.
 
 ---
 
-# Repository Structure
+## Repository structure (current)
 
-```
-trustcall/
-│
-├── backend/
-│   ├── app/
-│   │   ├── main.py
-│   │   ├── config.py
-│   │   ├── database.py
-│   │   ├── models/
-│   │   ├── schemas/
-│   │   ├── services/
-│   │   └── routes/
-│   │
+```text
+TrustCall/
+├── Backend/
+│   ├── main.py
 │   ├── requirements.txt
-│   └── .env
-│
-├── frontend/
+│   ├── Dockerfile
+│   ├── scripts/
+│   └── README.md
+├── Frontend/
 │   ├── src/
-│   ├── index.html
-│   └── package.json
-│
-├── docs/
-├── infra/
+│   ├── package.json
+│   └── README.md
 └── README.md
 ```
 
----
-
-# Technology Stack
-
-Backend
-FastAPI (Python)
-SQLAlchemy
-PostgreSQL
-Redis
-
-Frontend
-React (Vite)
-
-Infrastructure
-Docker
-Telecom APIs (Nokia Network as Code compatible)
+> Note: The folder names in this repo are `Backend/` and `Frontend/` (capitalized).
 
 ---
 
-# How It Works
+## Backend: run locally
 
-Step 1: Call is initiated
-Step 2: Telecom network sends verification request to TrustCall API
-Step 3: Trust Engine queries telecom identity signals
-Step 4: Trust Score is computed
-Step 5: Result is returned and displayed to recipient
-
-Verification completes in milliseconds.
-
----
-
-# API Endpoint
-
-POST /verify
-
-Request:
-
-```
-{
-  "caller": "+34600123456",
-  "recipient": "+34600987654"
-}
+```bash
+cd Backend
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-Response:
+Health check:
 
-```
-{
-  "trust_score": 91,
-  "status": "VERIFIED"
-}
+```bash
+curl http://127.0.0.1:8000/health
 ```
 
----
+Interactive API docs (when enabled):
 
-# Running the Backend
-
-Navigate to backend folder:
-
-```
-cd backend
-```
-
-Create virtual environment:
-
-```
-python3 -m venv venv
-source venv/bin/activate
-```
-
-Install dependencies:
-
-```
-pip install fastapi uvicorn
-```
-
-Run server:
-
-```
-uvicorn app.main:app --reload
-```
-
-API will be available at:
-
-```
-http://127.0.0.1:8000
-```
-
-Interactive API docs:
-
-```
+```text
 http://127.0.0.1:8000/docs
 ```
 
+### Environment
+
+Create `Backend/.env` (see `Backend/README.md` for the full, current list). Minimum for RapidAPI mode:
+
+```bash
+RAPIDAPI_KEY=<your-rapidapi-key>
+RAPIDAPI_HOST=network-as-code.nokia.rapidapi.com
+RAPIDAPI_BASE_URL=https://network-as-code.p-eu.rapidapi.com
+TRUSTCALL_API_KEY=<your-local-key>
+```
+
 ---
 
-# Running the Frontend
+## API (current)
 
-Navigate to frontend folder:
+### Start a trust handshake
 
+`POST /v1/trust-handshake`
+
+Request (example):
+
+```json
+{
+  "phone_e164": "+34640032379"
+}
 ```
-cd frontend
+
+Response (shape varies by signal availability):
+- `request_id`
+- `composite_score`
+- `badge`
+- per-layer deltas and evidence
+
+### Fetch handshake results
+
+`GET /v1/trust-handshake/{request_id}`
+
+---
+
+## Telecom signals (CAMARA) used by the backend
+
+Working now via RapidAPI:
+- SIM Swap
+- Device Swap
+- Number Recycling
+- Call Forwarding Signal
+- Device Status (Connectivity)
+- Location Retrieval
+
+Conditionally working:
+- KYC Tenure (scenario-dependent)
+
+Requires consent flow:
+- Number Verification
+
+---
+
+## Frontend
+
+```bash
+cd Frontend
 npm install
 npm run dev
 ```
 
-Frontend will run at:
+---
 
-```
-http://localhost:5173
-```
+## Status
+
+Prototype / active backend iteration:
+- Backend: integrated with Nokia Network as Code (RapidAPI) + Firestore persistence
+- Frontend: present (Vite/React) and runnable
 
 ---
 
-# Core Components
-
-Trust Engine
-Calculates Trust Score based on telecom identity signals.
-
-Telecom Integration Layer
-Fetches carrier identity data.
-
-Database
-Stores call verification history.
-
-Cache Layer
-Improves performance and reduces latency.
-
-API Layer
-Exposes verification endpoints.
-
----
-
-# Use Cases
-
-Banks and fintech for fraud prevention
-Telecom operators for verified caller services
-Enterprises for trusted outbound communication
-Government and emergency services
-
----
-
-# Vision
-
-TrustCall establishes a universal identity layer for voice communication.
-
-It enables secure, verified, and trusted voice interactions at global telecom scale.
-
----
-
-# Status
-
-Prototype stage
-Backend functional
-Frontend functional
-Telecom integration simulated
-
----
-
-# Future Work
-
-Integrate real telecom APIs
-Deploy using Docker and cloud infrastructure
-Add authentication and enterprise access control
-Implement advanced trust scoring models
-Scale for production telecom workloads
-
----
-
-# License
+## License
 
 Prototype project. All rights reserved.
-
